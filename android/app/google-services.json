@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "48993623728",
+    "project_id": "novacall-25c1c",
+    "storage_bucket": "novacall-25c1c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:48993623728:android:738b26cb0714048e572575",
+        "android_client_info": {
+          "package_name": "com.KING.NovaCall"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyALS4K-hVzQPrg46zXfJCpUEFjJFOdzRSI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:48993623728:android:6a9c94830d98b2c7572575",
+        "android_client_info": {
+          "package_name": "com.example.novacall"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyALS4K-hVzQPrg46zXfJCpUEFjJFOdzRSI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
