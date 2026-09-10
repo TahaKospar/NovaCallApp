@@ -8,13 +8,20 @@ part 'auth_state.dart';
 
 class AuthCubit extends Cubit<AuthState> {
   AuthCubit() : super(AuthInitial());
+
   Future<void> login({required String email, required String password}) async {
     emit(AuthLoading());
     String message;
     try {
-      final creditional = await FirebaseAuth.instance
+      final credential = await FirebaseAuth.instance
           .signInWithEmailAndPassword(email: email, password: password);
-      emit(AuthLoaded(creditional));
+      
+      String userId = credential.user!.uid;
+      await FirebaseFirestore.instance.collection('users').doc(userId).update({
+        'isOnline': true,
+      });
+
+      emit(AuthLoaded(credential));
     } on FirebaseAuthException catch (e) {
       if (e.code == "invalid-email") {
         message = "Error Data";
@@ -37,25 +44,29 @@ class AuthCubit extends Cubit<AuthState> {
     String message;
     emit(AuthLoading());
     try {
-      final creditional = await FirebaseAuth.instance
+      final credential = await FirebaseAuth.instance
           .createUserWithEmailAndPassword(email: email, password: password);
 
+      String userId = credential.user!.uid;
+
+      // حفظ بيانات اليوزر مع تعيين حالة الـ isOnline بـ true فور التسجيل
       await FirebaseFirestore.instance
           .collection("users")
-          .doc(creditional.user!.uid)
+          .doc(userId)
           .set({
             "name": name,
             "email": email,
-            "uid": creditional.user!.uid,
+            "uid": userId,
             "photo": "",
+            "isOnline": true, // <--- ضفناها هنا عشان يتسجل أونلاين من البداية
           });
 
       await FirebaseAuth.instance.currentUser!.sendEmailVerification();
 
-      emit(AuthLoaded(creditional));
+      emit(AuthLoaded(credential));
     } on FirebaseAuthException catch (e) {
       if (e.code == "email-already-in-use") {
-        message = "The Email is arleady in use Try another Email";
+        message = "The Email is already in use Try another Email";
       } else if (e.code == "weak-password") {
         message = "Weak Password";
       } else {

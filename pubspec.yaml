@@ -28,6 +28,7 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
+  agora_rtc_engine: ^6.6.4
   awesome_dialog: ^3.3.0
   bloc: ^8.1.4
   cloud_firestore: ^6.1.2
@@ -38,13 +39,18 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_bloc: ^8.1.6
-  video_player: ^2.9.2
+  permission_handler: ^12.0.0
 
 dev_dependencies:
   flutter_lints: ^6.0.0
   flutter_test:
     sdk: flutter
+  flutter_launcher_icons: ^0.14.4
 
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/icon.png"
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:novacall/presentation/screens/main/contacts_tab.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -14,8 +15,7 @@ class _HomePageState extends State<HomePage> {
   // دي الشاشات اللي هيتنقل بينها الـ Bottom Navigation Bar
   final List<Widget> _screens = [
     const HomeTab(), // التاب الرئيسية اللي فيها الشغل
-    const Center(child: Text("Contacts Tab", style: TextStyle(fontSize: 24))),
-    const Center(child: Text("Calls Tab", style: TextStyle(fontSize: 24))),
+    const ContactsScreen(),
     const Center(child: Text("Profile Tab", style: TextStyle(fontSize: 24))),
   ];
 
@@ -47,7 +47,6 @@ class _HomePageState extends State<HomePage> {
             icon: Icon(Icons.contacts),
             label: 'Contacts',
           ),
-          BottomNavigationBarItem(icon: Icon(Icons.call), label: 'Calls'),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
         ],
       ),
