@@ -1,31 +1,65 @@
 import 'package:bloc/bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
+
+import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
+import 'package:zego_uikit_signaling_plugin/zego_uikit_signaling_plugin.dart';
 
 part 'auth_state.dart';
 
 class AuthCubit extends Cubit<AuthState> {
   AuthCubit() : super(AuthInitial());
 
-  Future<void> login({required String email, required String password}) async {
+  Future<void> _initZegoService({
+    required String userID,
+    required String userName,
+  }) async {
+    await ZegoUIKitPrebuiltCallInvitationService().init(
+      appID: 624326593,
+      appSign:
+          "061cafbc1e8e09e8afb72e669b57cad3f231b8d0ad97ec073e8fa8858b2389f9",
+      userID: userID,
+      userName: userName,
+      plugins: [ZegoUIKitSignalingPlugin()],
+    );
+  }
+
+  Future<void> updateOnlineStatus(bool isOnline) async {
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId == null) return;
+
+    try {
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .update({'isOnline': isOnline});
+    } catch (_) {}
+  }
+
+  Future<void> login({
+    required String email,
+    required String password,
+  }) async {
     emit(AuthLoading());
     String message;
     try {
       final credential = await FirebaseAuth.instance
           .signInWithEmailAndPassword(email: email, password: password);
-      
+
       String userId = credential.user!.uid;
       await FirebaseFirestore.instance.collection('users').doc(userId).update({
         'isOnline': true,
       });
 
+      await _initZegoService(
+        userID: userId,
+        userName: credential.user!.displayName ?? email.split('@')[0],
+      );
+
       emit(AuthLoaded(credential));
     } on FirebaseAuthException catch (e) {
-      if (e.code == "invalid-email") {
-        message = "Error Data";
-      } else if (e.code == "invalid-credential") {
+      if (e.code == "invalid-email" || e.code == "invalid-credential") {
         message = "Error Data";
       } else {
         message = "Error ${e.code}";
@@ -49,19 +83,18 @@ class AuthCubit extends Cubit<AuthState> {
 
       String userId = credential.user!.uid;
 
-      // حفظ بيانات اليوزر مع تعيين حالة الـ isOnline بـ true فور التسجيل
-      await FirebaseFirestore.instance
-          .collection("users")
-          .doc(userId)
-          .set({
-            "name": name,
-            "email": email,
-            "uid": userId,
-            "photo": "",
-            "isOnline": true, // <--- ضفناها هنا عشان يتسجل أونلاين من البداية
-          });
+      await FirebaseFirestore.instance.collection("users").doc(userId).set({
+        "name": name,
+        "email": email,
+        "uid": userId,
+        "photo": "",
+        "isOnline": true,
+        "blockedUsers": [],
+      });
 
       await FirebaseAuth.instance.currentUser!.sendEmailVerification();
+
+      await _initZegoService(userID: userId, userName: name);
 
       emit(AuthLoaded(credential));
     } on FirebaseAuthException catch (e) {
@@ -76,5 +109,12 @@ class AuthCubit extends Cubit<AuthState> {
     } catch (e) {
       emit(AuthError(e.toString()));
     }
+  }
+
+  Future<void> logout() async {
+    await updateOnlineStatus(false);
+    ZegoUIKitPrebuiltCallInvitationService().uninit();
+    await FirebaseAuth.instance.signOut();
+    emit(AuthInitial());
   }
 }

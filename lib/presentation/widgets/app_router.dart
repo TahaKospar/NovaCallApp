@@ -45,6 +45,11 @@ class AppRouter {
           builder: (context) =>
               BlocProvider.value(value: contactCubit, child: const HomePage()),
         );
+      case profile:
+        return MaterialPageRoute(
+          builder: (context) =>
+              BlocProvider.value(value: contactCubit, child: const HomePage()),
+        );
       default:
         return MaterialPageRoute(
           builder: (context) => BlocProvider.value(

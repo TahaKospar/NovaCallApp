@@ -9,7 +9,14 @@ final class ContactLoading extends ContactState {}
 
 final class ContactLoaded extends ContactState {
   final List<Contacts> contacts;
-  ContactLoaded(this.contacts);
+  final List<Contacts> filteredContacts;
+  final String searchQuery;
+
+  ContactLoaded(
+    this.contacts, {
+    List<Contacts>? filteredContacts,
+    this.searchQuery = '',
+  }) : filteredContacts = filteredContacts ?? contacts;
 }
 
 final class ContactError extends ContactState {
