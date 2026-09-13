@@ -153,15 +153,23 @@ flutter run
 flutter build apk --release
 Output: build/app/outputs/flutter-apk/app-release.apk
 
-📸 Screenshots
-Login	Register	Edit Profile
-screenshots/2.png	screenshots/3.png	screenshots/1.png
-Home	Contacts	Search
-screenshots/4.png	screenshots/6.png	screenshots/7.png
-Call History	Profile (Light)	Profile (Dark)
-screenshots/5.png	screenshots/8.png	
-Block User	Blocked Users	Video Call
-screenshots/9.png	screenshots/10.png	screenshots/12.png
+## 📸 Screenshots
+
+| Login | Register | Edit Profile |
+|-------|----------|--------------|
+| ![Login](screenshots/2.png) | ![Register](screenshots/3.png) | ![Edit Profile](screenshots/1.png) |
+
+| Home | Contacts | Search |
+|------|----------|--------|
+| ![Home](screenshots/4.png) | ![Contacts](screenshots/6.png) | ![Search](screenshots/7.png) |
+
+| Call History | Profile (Light) | Profile (Dark) |
+|--------------|-----------------|----------------|
+| ![Call History](screenshots/5.png) | ![Profile Light](screenshots/8.png) | ![Profile Dark](screenshots/11.png) |
+
+| Block User | Blocked Users | Video Call |
+|------------|---------------|------------|
+| ![Block User](screenshots/9.png) | ![Blocked Users](screenshots/10.png) | ![Video Call](screenshots/12.png) |
 
 📖 How It Works
 Authentication Flow
