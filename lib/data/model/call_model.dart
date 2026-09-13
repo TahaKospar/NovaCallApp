@@ -72,6 +72,7 @@ class CallModel {
   bool isForUser(String userId) {
     return callerId == userId || receiverId == userId;
   }
+
   bool isMissed() {
     return status == CallStatus.missed ||
         (status == CallStatus.outgoing && durationInSeconds == 0);

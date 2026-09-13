@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:bloc/bloc.dart';
+import 'package:flutter/material.dart';
 import 'package:novacall/data/model/call_model.dart';
 import 'package:novacall/data/services/call_history_service.dart';
 
@@ -17,24 +18,30 @@ class CallHistoryCubit extends Cubit<CallHistoryState> {
         super(CallHistoryInitial());
 
   void loadHistory() {
+    debugPrint('🔵 loadHistory called');
     emit(CallHistoryLoading());
 
     _subscription?.cancel();
     _subscription = _service.getCallHistory().listen(
       (calls) {
+        debugPrint('🔵 getCallHistory emitted: ${calls.length} calls');
         emit(CallHistoryLoaded(calls));
       },
       onError: (error) {
+        debugPrint('🔴 getCallHistory error: $error');
         emit(CallHistoryError(error.toString()));
       },
     );
   }
 
   Future<void> loadFrequentContacts() async {
+    debugPrint('🔵 loadFrequentContacts called');
     try {
       _frequentContacts = await _service.getFrequentContacts();
+      debugPrint('🔵 frequent contacts: ${_frequentContacts.length}');
       emit(FrequentContactsLoaded(_frequentContacts));
     } catch (e) {
+      debugPrint('🔴 loadFrequentContacts error: $e');
       emit(CallHistoryError(e.toString()));
     }
   }

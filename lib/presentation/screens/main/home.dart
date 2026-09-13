@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:novacall/business_logic/callHistoryCubit/call_history_cubit.dart';
 import 'package:novacall/business_logic/contactCubit/contact_cubit.dart';
 import 'package:novacall/data/model/call_model.dart';
+import 'package:novacall/data/services/call_history_service.dart';
 import 'package:novacall/presentation/screens/main/contacts_tab.dart';
 import 'package:novacall/presentation/screens/main/profile_tab.dart';
 import 'package:novacall/presentation/widgets/user_tile.dart';
@@ -36,7 +37,10 @@ class _HomePageState extends State<HomePage> {
     ];
 
     return Scaffold(
-      body: IndexedStack(index: _selectedIndex, children: screens),
+      body: IndexedStack(
+        index: _selectedIndex,
+        children: screens,
+      ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: (index) {
@@ -67,287 +71,271 @@ class HomeTab extends StatefulWidget {
   State<HomeTab> createState() => _HomeTabState();
 }
 
-class _HomeTabState extends State<HomeTab> with AutomaticKeepAliveClientMixin {
+class _HomeTabState extends State<HomeTab>
+    with AutomaticKeepAliveClientMixin {
+  final CallHistoryService _callHistoryService = CallHistoryService();
+
   @override
   bool get wantKeepAlive => true;
-@override
-void initState() {
-  super.initState();
-  context.read<CallHistoryCubit>().loadHistory();
-  context.read<CallHistoryCubit>().loadFrequentContacts();
-  context.read<ContactCubit>().listenToContacts();
-}
+
+  @override
+  void initState() {
+    super.initState();
+    context.read<CallHistoryCubit>().loadFrequentContacts();
+    context.read<ContactCubit>().listenToContacts();
+  }
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
     final textColor = Theme.of(context).textTheme.bodyLarge?.color;
 
-    return CustomScrollView(
-      slivers: [
-        SliverAppBar(
-          floating: true,
-          snap: true,
-          backgroundColor: const Color.fromARGB(255, 45, 95, 185),
-          elevation: 0,
-          title: const Text(
-            "NovaCall",
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-              letterSpacing: 1.5,
-            ),
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: const Color.fromARGB(255, 45, 95, 185),
+        elevation: 0,
+        title: const Text(
+          "NovaCall",
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+            letterSpacing: 1.5,
           ),
-          actions: const [
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.0),
-              child: _UserAvatar(),
-            ),
-          ],
-          bottom: PreferredSize(
-            preferredSize: const Size.fromHeight(70),
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-              child: TextField(
-                controller: widget.searchController,
-                onChanged: (value) {
-                  BlocProvider.of<ContactCubit>(context).searchContacts(value);
-                  setState(() {});
-                },
-                style: const TextStyle(color: Colors.black),
-                decoration: InputDecoration(
-                  hintText: 'Search contacts...',
-                  hintStyle: const TextStyle(color: Colors.grey),
-                  prefixIcon: const Icon(Icons.search, color: Colors.grey),
-                  suffixIcon: widget.searchController.text.isNotEmpty
-                      ? IconButton(
-                          icon: const Icon(Icons.clear, color: Colors.grey),
-                          onPressed: () {
-                            widget.searchController.clear();
-                            BlocProvider.of<ContactCubit>(
-                              context,
-                            ).clearSearch();
-                            setState(() {});
-                          },
-                        )
-                      : null,
-                  filled: true,
-                  fillColor: Colors.white,
-                  contentPadding: const EdgeInsets.symmetric(vertical: 0),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30),
-                    borderSide: BorderSide.none,
-                  ),
+        ),
+        actions: const [
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.0),
+            child: _UserAvatar(),
+          ),
+        ],
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(70),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+            child: TextField(
+              controller: widget.searchController,
+              onChanged: (value) {
+                BlocProvider.of<ContactCubit>(context)
+                    .searchContacts(value);
+                setState(() {});
+              },
+              style: const TextStyle(color: Colors.black),
+              decoration: InputDecoration(
+                hintText: 'Search contacts...',
+                hintStyle: const TextStyle(color: Colors.grey),
+                prefixIcon: const Icon(Icons.search, color: Colors.grey),
+                suffixIcon: widget.searchController.text.isNotEmpty
+                    ? IconButton(
+                        icon: const Icon(Icons.clear, color: Colors.grey),
+                        onPressed: () {
+                          widget.searchController.clear();
+                          BlocProvider.of<ContactCubit>(context)
+                              .clearSearch();
+                          setState(() {});
+                        },
+                      )
+                    : null,
+                filled: true,
+                fillColor: Colors.white,
+                contentPadding: const EdgeInsets.symmetric(vertical: 0),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(30),
+                  borderSide: BorderSide.none,
                 ),
               ),
             ),
           ),
         ),
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "Frequently Called",
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: textColor,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                BlocBuilder<CallHistoryCubit, CallHistoryState>(
-                  builder: (context, state) {
-                    final frequent = context
-                        .read<CallHistoryCubit>()
-                        .frequentContacts;
+      ),
+      body: StreamBuilder<List<CallModel>>(
+        stream: _callHistoryService.getCallHistory(),
+        builder: (context, snapshot) {
+          final calls = snapshot.data ?? [];
 
-                    if (frequent.isEmpty) {
+          return ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              Text(
+                "Frequently Called",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: textColor,
+                ),
+              ),
+              const SizedBox(height: 10),
+              BlocBuilder<CallHistoryCubit, CallHistoryState>(
+                builder: (context, state) {
+                  final frequent = context
+                      .read<CallHistoryCubit>()
+                      .frequentContacts;
+
+                  if (frequent.isEmpty) {
+                    return const Padding(
+                      padding: EdgeInsets.all(20.0),
+                      child: Center(
+                        child: Text(
+                          "No frequent contacts yet",
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                      ),
+                    );
+                  }
+
+                  return SizedBox(
+                    height: 100,
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: frequent.length,
+                      itemBuilder: (context, index) {
+                        final contact = frequent[index];
+                        final name = contact['name'] as String;
+
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 16),
+                          child: Column(
+                            children: [
+                              CircleAvatar(
+                                radius: 30,
+                                backgroundColor: Colors.blue.shade100,
+                                child: Text(
+                                  name.isNotEmpty
+                                      ? name[0].toUpperCase()
+                                      : '?',
+                                  style: const TextStyle(
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color.fromARGB(
+                                        255, 45, 95, 185),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              SizedBox(
+                                width: 70,
+                                child: Text(
+                                  name,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: textColor,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  );
+                },
+              ),
+
+              const Divider(height: 30, thickness: 1),
+
+              Text(
+                widget.searchController.text.isNotEmpty
+                    ? "Search Results"
+                    : "Contacts",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: textColor,
+                ),
+              ),
+              const SizedBox(height: 10),
+              BlocBuilder<ContactCubit, ContactState>(
+                builder: (context, state) {
+                  if (state is ContactLoading) {
+                    return const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(20.0),
+                        child: CircularProgressIndicator(
+                          color: Color.fromARGB(255, 45, 95, 185),
+                        ),
+                      ),
+                    );
+                  } else if (state is ContactLoaded) {
+                    final contacts = state.filteredContacts;
+
+                    if (contacts.isEmpty) {
                       return const Padding(
                         padding: EdgeInsets.all(20.0),
                         child: Center(
                           child: Text(
-                            "No frequent contacts yet",
+                            "No contacts found",
                             style: TextStyle(color: Colors.grey),
                           ),
                         ),
                       );
                     }
 
-                    return SizedBox(
-                      height: 100,
-                      child: ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: frequent.length,
-                        itemBuilder: (context, index) {
-                          final contact = frequent[index];
-                          final name = contact['name'] as String;
-
-                          return Padding(
-                            padding: const EdgeInsets.only(right: 16),
-                            child: Column(
-                              children: [
-                                CircleAvatar(
-                                  radius: 30,
-                                  backgroundColor: Colors.blue.shade100,
-                                  child: Text(
-                                    name.isNotEmpty
-                                        ? name[0].toUpperCase()
-                                        : '?',
-                                    style: const TextStyle(
-                                      fontSize: 22,
-                                      fontWeight: FontWeight.bold,
-                                      color: Color.fromARGB(255, 45, 95, 185),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(height: 6),
-                                SizedBox(
-                                  width: 70,
-                                  child: Text(
-                                    name,
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: textColor,
-                                    ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
-                        },
-                      ),
+                    return Column(
+                      children: contacts.map((user) {
+                        return UserTile(
+                          userId: user.uid,
+                          userName: user.name,
+                          isOnline: user.isOnline,
+                          onCallFinished: () {
+                            context
+                                .read<CallHistoryCubit>()
+                                .loadFrequentContacts();
+                          },
+                        );
+                      }).toList(),
                     );
-                  },
+                  }
+                  return const SizedBox();
+                },
+              ),
+
+              const Divider(height: 30, thickness: 1),
+
+              Text(
+                "Call History",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: textColor,
                 ),
-
-                const Divider(height: 30, thickness: 1),
-
-                Text(
-                  widget.searchController.text.isNotEmpty
-                      ? "Search Results"
-                      : "Contacts",
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: textColor,
+              ),
+              const SizedBox(height: 10),
+              if (snapshot.connectionState == ConnectionState.waiting)
+                const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(20.0),
+                    child: CircularProgressIndicator(
+                      color: Color.fromARGB(255, 45, 95, 185),
+                    ),
                   ),
-                ),
-                const SizedBox(height: 10),
-                BlocBuilder<ContactCubit, ContactState>(
-                  builder: (context, state) {
-                    if (state is ContactLoading) {
-                      return const Center(
-                        child: Padding(
-                          padding: EdgeInsets.all(20.0),
-                          child: CircularProgressIndicator(
-                            color: Color.fromARGB(255, 45, 95, 185),
-                          ),
-                        ),
-                      );
-                    } else if (state is ContactLoaded) {
-                      final contacts = state.filteredContacts;
-
-                      if (contacts.isEmpty) {
-                        return const Padding(
-                          padding: EdgeInsets.all(20.0),
-                          child: Center(
-                            child: Text(
-                              "No contacts found",
-                              style: TextStyle(color: Colors.grey),
-                            ),
-                          ),
-                        );
-                      }
-
-                      return ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: contacts.length,
-                        itemBuilder: (context, index) {
-                          final user = contacts[index];
-                          return UserTile(
-                            userId: user.uid,
-                            userName: user.name,
-                            isOnline: user.isOnline,
-                            onCallFinished: () {
-                              context.read<CallHistoryCubit>().loadHistory();
-                              context
-                                  .read<CallHistoryCubit>()
-                                  .loadFrequentContacts();
-                            },
-                          );
-                        },
-                      );
-                    }
-                    return const SizedBox();
-                  },
-                ),
-
-                const Divider(height: 30, thickness: 1),
-
-                Text(
-                  "Call History",
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: textColor,
+                )
+              else if (calls.isEmpty)
+                const Padding(
+                  padding: EdgeInsets.all(20.0),
+                  child: Center(
+                    child: Text(
+                      "No call history",
+                      style: TextStyle(color: Colors.grey),
+                    ),
                   ),
+                )
+              else
+                Column(
+                  children: calls.map((call) {
+                    return _buildCallHistoryTile(
+                      call,
+                      textColor,
+                      FirebaseAuth.instance.currentUser!.uid,
+                    );
+                  }).toList(),
                 ),
-                const SizedBox(height: 10),
-                BlocBuilder<CallHistoryCubit, CallHistoryState>(
-                  builder: (context, state) {
-                    if (state is CallHistoryLoading) {
-                      return const Center(
-                        child: Padding(
-                          padding: EdgeInsets.all(20.0),
-                          child: CircularProgressIndicator(
-                            color: Color.fromARGB(255, 45, 95, 185),
-                          ),
-                        ),
-                      );
-                    } else if (state is CallHistoryLoaded) {
-                      final calls = state.calls;
-
-                      if (calls.isEmpty) {
-                        return const Padding(
-                          padding: EdgeInsets.all(20.0),
-                          child: Center(
-                            child: Text(
-                              "No call history",
-                              style: TextStyle(color: Colors.grey),
-                            ),
-                          ),
-                        );
-                      }
-
-                      return ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: calls.length,
-                        itemBuilder: (context, index) {
-                          return _buildCallHistoryTile(
-                            calls[index],
-                            textColor,
-                            FirebaseAuth.instance.currentUser!.uid,
-                          );
-                        },
-                      );
-                    }
-                    return const SizedBox();
-                  },
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
+            ],
+          );
+        },
+      ),
     );
   }
 
@@ -364,12 +352,12 @@ void initState() {
     return ListTile(
       contentPadding: EdgeInsets.zero,
       leading: CircleAvatar(
-        backgroundColor: isMissed
-            ? Colors.red.withOpacity(0.2)
-            : Colors.blue.shade100,
+        backgroundColor:
+            isMissed ? Colors.red.withOpacity(0.2) : Colors.blue.shade100,
         child: Icon(
           isVideo ? Icons.videocam : Icons.call,
-          color: isMissed ? Colors.red : const Color.fromARGB(255, 45, 95, 185),
+          color:
+              isMissed ? Colors.red : const Color.fromARGB(255, 45, 95, 185),
           size: 20,
         ),
       ),
@@ -399,7 +387,7 @@ void initState() {
           ),
           const SizedBox(width: 8),
           Text(
-            _formatDuration(call.durationInSeconds),
+            _formatDuration(call.durationInSeconds, isMissed),
             style: TextStyle(
               fontSize: 12,
               color: isMissed ? Colors.red : Colors.grey,
@@ -426,8 +414,10 @@ void initState() {
     }
   }
 
-  String _formatDuration(int seconds) {
-    if (seconds == 0) return 'Missed';
+  String _formatDuration(int seconds, bool isMissed) {
+    if (isMissed) return 'Missed';
+    if (seconds == 0) return '00:00';
+
     final minutes = seconds ~/ 60;
     final secs = seconds % 60;
     return '${minutes.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}';
