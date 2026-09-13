@@ -29,6 +29,7 @@ The app is built as part of a Flutter Development Internship Assignment.
 ## ✨ Features
 
 ### Core Features
+
 - ✅ **Authentication** — Login, Register, Logout (Firebase Auth with email verification)
 - ✅ **Contacts List** — View all users with online/offline status
 - ✅ **Search** — Real-time search through contacts
@@ -41,6 +42,7 @@ The app is built as part of a Flutter Development Internship Assignment.
 - ✅ **Permissions Handling** — Microphone and camera permissions
 
 ### Bonus Features
+
 - ✅ **Dark Mode** — Full light/dark theme support
 - ✅ **Push Notifications** — Incoming call notifications
 - ✅ **Background Calls** — Receive calls even when app is in background
@@ -52,21 +54,26 @@ The app is built as part of a Flutter Development Internship Assignment.
 ## 🛠️ Tech Stack
 
 ### Frontend
+
 - **Flutter** 3.32.7 (stable)
 - **Dart** 3.12.2
 
 ### State Management
+
 - **BLoC / Cubit** (flutter_bloc ^8.1.6)
 
 ### Backend
+
 - **Firebase Authentication** (email/password)
 - **Cloud Firestore** (user data, call history, blocking)
 
 ### Calling SDK
+
 - **ZEGOCLOUD** (`zego_uikit_prebuilt_call` ^4.24.4 + `zego_uikit_signaling_plugin` ^2.8.21)
 - **Why ZEGOCLOUD?** Pre-built UI components, reliable signaling, easy integration with Flutter, and built-in support for 1-to-1 calls, incoming call invitations, and call controls.
 
 ### Other Packages
+
 - `permission_handler` ^12.0.3 — Runtime permissions
 - `awesome_dialog` ^3.3.0 — Beautiful dialogs
 - `intl` ^0.19.0 — Date/time formatting
@@ -78,80 +85,98 @@ The app is built as part of a Flutter Development Internship Assignment.
 ## 🏗️ Architecture
 
 The project follows a **Clean Architecture** approach with clear separation of concerns:
-lib/
-├── business_logic/ # State management (Cubits)
-│ ├── cubit/ # AuthCubit
-│ ├── contactCubit/ # ContactCubit
-│ ├── callHistoryCubit/ # CallHistoryCubit
-│ └── ThemeCubit.dart # Theme management
-│
-├── constants/ # App constants
-│ ├── icon/ # Icons & GIFs
-│ └── strings/ # String constants & routes
-│
-├── data/ # Data layer
-│ ├── model/ # Data models (User, CallModel)
-│ ├── repository/ # Repositories
-│ └── services/ # Firebase services
-│
-└── presentation/ # UI layer
-├── screens/
-│ ├── SplashScreen.dart
-│ ├── auth/ # Login, Register
-│ └── main/ # Home, Contacts, Profile, CallHistory
-└── widgets/ # Reusable widgets (UserTile)
 
+```
+lib/
+├── business_logic/           # State management (Cubits)
+│   ├── cubit/                # AuthCubit
+│   ├── contactCubit/         # ContactCubit
+│   ├── callHistoryCubit/     # CallHistoryCubit
+│   └── ThemeCubit.dart       # Theme management
+│
+├── constants/                # App constants
+│   ├── icon/                 # Icons & GIFs
+│   └── strings/              # String constants & routes
+│
+├── data/                     # Data layer
+│   ├── model/                # Data models (User, CallModel)
+│   ├── repository/           # Repositories
+│   └── services/             # Firebase services
+│
+└── presentation/             # UI layer
+    ├── screens/
+    │   ├── SplashScreen.dart
+    │   ├── auth/             # Login, Register
+    │   └── main/             # Home, Contacts, Profile, CallHistory
+    └── widgets/              # Reusable widgets (UserTile)
+```
 
 ### Data Flow
 
+```
 UI (Widgets) → Cubit (State) → Repository → Service (Firebase/Zego)
+```
 
 ---
 
 ## 🚀 Setup Instructions
 
 ### Prerequisites
+
 - Flutter SDK 3.32.7 or higher
 - Android Studio / VS Code
 - Firebase account
 - ZEGOCLOUD account
 
 ### 1. Clone the Repository
-bash
-git clone https://github.com/TahaKospar/novacall.git
-cd novacall
 
-2. Install Dependencies
-```flutter pub get```
+```bash
+git clone https://github.com/TahaKospar/NovaCallApp.git
+cd NovaCallApp
+```
 
-3.  Firebase Setup
-1.Create a Firebase project at console.firebase.google.com
+### 2. Install Dependencies
 
-2.Enable Authentication (Email/Password)
+```bash
+flutter pub get
+```
 
-3.Enable Cloud Firestore
+### 3. Firebase Setup
 
-4.Download google-services.json and place it in android/app/
+1. Create a Firebase project at [console.firebase.google.com](https://console.firebase.google.com)
+2. Enable **Authentication** (Email/Password)
+3. Enable **Cloud Firestore**
+4. Download `google-services.json` and place it in `android/app/`
+5. Update `FirebaseOptions` if needed
 
-5.Update FirebaseOptions if needed
+### 4. ZEGOCLOUD Setup
 
-4. ZEGOCLOUD Setup
-1.Create a project at console.zegocloud.com
+1. Create a project at [console.zegocloud.com](https://console.zegocloud.com)
+2. Get your **AppID** and **AppSign**
+3. Update them in `lib/main.dart`:
 
-2.Get your AppID and AppSign
-
-3.Update them in lib/main.dart:
+```dart
 const int zegoAppID = YOUR_APP_ID;
 const String zegoAppSign = "YOUR_APP_SIGN";
+```
 
-4.Register a Resource ID named zegouikit_call in the ZEGOCLOUD Console
+4. Register a **Resource ID** named `zegouikit_call` in the ZEGOCLOUD Console
 
-5. Run the App
+### 5. Run the App
+
+```bash
 flutter run
+```
 
-6. Build APK
+### 6. Build APK
+
+```bash
 flutter build apk --release
-Output: build/app/outputs/flutter-apk/app-release.apk
+```
+
+Output: `build/app/outputs/flutter-apk/app-release.apk`
+
+---
 
 ## 📸 Screenshots
 
@@ -171,84 +196,82 @@ Output: build/app/outputs/flutter-apk/app-release.apk
 |------------|---------------|------------|
 | ![Block User](screenshots/9.png) | ![Blocked Users](screenshots/10.png) | ![Video Call](screenshots/12.png) |
 
-📖 How It Works
-Authentication Flow
-User registers with email/password
+---
 
-Email verification is sent
+## 📖 How It Works
 
-User verifies email and logs in
+### Authentication Flow
 
-ZegoUIKitPrebuiltCallInvitationService is initialized with the user's ID
+1. User registers with email/password
+2. Email verification is sent
+3. User verifies email and logs in
+4. `ZegoUIKitPrebuiltCallInvitationService` is initialized with the user's ID
 
-Calling Flow
-User taps call button on a contact
+### Calling Flow
 
-ZEGOCLOUD sends an invitation to the receiver
+1. User taps call button on a contact
+2. ZEGOCLOUD sends an invitation to the receiver
+3. Receiver sees incoming call notification
+4. Receiver accepts → both users join the call room
+5. Call happens via ZEGOCLOUD's real-time communication
+6. When call ends, duration is calculated and saved to Firestore
 
-Receiver sees incoming call notification
+### Call History
 
-Receiver accepts → both users join the call room
+- Every call is saved in Firestore with: caller, receiver, type, duration, status
+- History is fetched in real-time using Firestore streams
+- Duration is calculated based on `createdAt` timestamp
 
-Call happens via ZEGOCLOUD's real-time communication
+### Block User
 
-When call ends, duration is calculated and saved to Firestore
+- User can long-press on any contact to block them
+- Blocked users are stored in `blockedUsers` array in the user document
+- Blocked users are filtered out from the contacts list
+- Users can view and unblock from Profile → Blocked Users
 
-Call History
-Every call is saved in Firestore with: caller, receiver, type, duration, status
+---
 
-History is fetched in real-time using Firestore streams
+## ⚠️ Known Limitations
 
-Duration is calculated based on createdAt timestamp
+1. **Group calls** — Not implemented (only 1-to-1)
+2. **Screen sharing** — Not implemented
+3. **Call recording** — Not implemented
+4. **Network quality indicator** — Not displayed (ZEGOCLOUD doesn't expose it as a pre-built button)
+5. **Call History duration** — Approximated based on timestamps (may not be 100% accurate if app is killed)
+6. **iOS build** — Only Android APK provided
 
-Block User
-User can long-press on any contact to block them
+---
 
-Blocked users are stored in blockedUsers array in the user document
+## 🤖 AI Tools Used
 
-Blocked users are filtered out from the contacts list
-
-Users can view and unblock from Profile → Blocked Users
-
-⚠️ Known Limitations
-Group calls — Not implemented (only 1-to-1)
-
-Screen sharing — Not implemented
-
-Call recording — Not implemented
-
-Network quality indicator — Not displayed (ZEGOCLOUD doesn't expose it as a pre-built button)
-
-Call History duration — Approximated based on timestamps (may not be 100% accurate if app is killed)
-
-iOS build — Only Android APK provided
-
-🤖 AI Tools Used
 The following AI tools were used during development:
 
-ChatGPT (OpenAI) — Used for debugging Gradle build issues, Firebase setup, and code review
+- **ChatGPT (OpenAI)** — Used for debugging Gradle build issues, Firebase setup, and code review
+- **Claude (Anthropic)** — Used for architecture design and code explanations
+- **DeepSeek** — Used for troubleshooting ZEGOCLOUD integration
+- **GitHub Copilot** — Used for autocomplete and boilerplate code
 
-Claude (Anthropic) — Used for architecture design and code explanations
+**Note:** All code was reviewed, understood, and tested by the developer. The AI tools were used as assistants, not as replacements.
 
-DeepSeek — Used for troubleshooting ZEGOCLOUD integration
+---
 
-GitHub Copilot — Used for autocomplete and boilerplate code
+## 📄 License
 
-Note: All code was reviewed, understood, and tested by the developer. The AI tools were used as assistants, not as replacements.
-
-📄 License
 This project is created for educational and internship evaluation purposes.
 
-👤 Author
-Taha Kospar
+---
 
-GitHub: @TahaKospar
+## 👤 Author
 
-🙏 Acknowledgments
-Flutter
+**Taha Kospar**
 
-Firebase
+- GitHub: [@TahaKospar](https://github.com/TahaKospar)
 
-ZEGOCLOUD
+---
 
-BLoC Library
+## 🙏 Acknowledgments
+
+- [Flutter](https://flutter.dev)
+- [Firebase](https://firebase.google.com)
+- [ZEGOCLOUD](https://www.zegocloud.com)
+- [BLoC Library](https://bloclibrary.dev)
