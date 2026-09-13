@@ -155,13 +155,13 @@ Output: build/app/outputs/flutter-apk/app-release.apk
 
 📸 Screenshots
 Login	Register	Edit Profile
-screenshots/2.jpeg	screenshots/3.jpeg	screenshots/1.jpeg
+screenshots/2.png	screenshots/3.png	screenshots/1.png
 Home	Contacts	Search
-screenshots/4.jpeg	screenshots/6.jpeg	screenshots/7.jpeg
+screenshots/4.png	screenshots/6.png	screenshots/7.png
 Call History	Profile (Light)	Profile (Dark)
-screenshots/5.jpeg	screenshots/8.jpeg	screenshots/11.jpeg
+screenshots/5.png	screenshots/8.png	
 Block User	Blocked Users	Video Call
-screenshots/9.jpeg	screenshots/10.jpeg	screenshots/12.png
+screenshots/9.png	screenshots/10.png	screenshots/12.png
 
 📖 How It Works
 Authentication Flow
